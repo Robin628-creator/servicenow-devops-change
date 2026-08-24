@@ -6,24 +6,34 @@ on:
     
 
 jobs:
-   
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set Node.js 24.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Compile
+      run: npm run build
+
+    
   changeApproval:
     name: ServiceNow Change Approval
+    needs: build
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Check ServiceNow secret
-      env: 
- INSTANCE_URL: $ {{ secrets.SN_INSTANCE_URL }}
-run: | 
-     if [ -z "$INSTANCE_URL" ]; 
-     then 
-     echo "INSTANCE URL SECRET IS EMPTY"
-     exit 1
-     else
-     echo "INSTANCE URL SECRET IS AVAILABLE"
-     fi
-       - name: ServiceNow Change Approval
+    steps:     
+      - name: ServiceNow Change Approval
         uses: ServiceNow/servicenow-devops-change@v6.1.0
         id: create
         with:
