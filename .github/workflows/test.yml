@@ -11,17 +11,18 @@ jobs:
     name: ServiceNow Change Approval
     runs-on: ubuntu-latest
 
-steps:
-
+    steps:
     - name: Check ServiceNow secret
-    env: INSTANCE_URL: ${{ secrets.SN_DEVOPS_INSTANCE_URL }}
-    run: |
-    if [ -z "$INSTANCE_URL" ]; then 
-    echo "INSTANCE URL SECRET IS EMPTY"
-    exit 1
-    else
-    echo "INSTANCE URL SECRET IS AVAILABLE"
-    fi
+      env: 
+ INSTANCE_URL: $ {{ secrets.SN_DEVOPS_INSTANCE_URL }}
+run: | 
+     if [ -z "$INSTANCE_URL" ]; 
+     then 
+     echo "INSTANCE URL SECRET IS EMPTY"
+     exit 1
+     else
+     echo "INSTANCE URL SECRET IS AVAILABLE"
+     fi
        - name: ServiceNow Change Approval
         uses: ServiceNow/servicenow-devops-change@v6.1.0
         id: create
