@@ -26,8 +26,7 @@ jobs:
 
     - name: Compile
       run: npm run build
-   run: npm ci --max-retries=3 --timeout=120000
-    
+       
   changeApproval:
     name: ServiceNow Change Approval
     needs: build
