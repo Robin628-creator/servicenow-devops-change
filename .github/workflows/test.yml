@@ -11,9 +11,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+  changeApproval:
+    name: ServiceNow Change Approval
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: ServiceNow Change Approval
+        uses: ServiceNow/servicenow-devops-change@v6.1.0
+        id: create
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'ServiceNow Change Approval'
+          change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment from GitHub Actions.","assignment_group":"a715cd759f200"}}'
+          interval: '100'
+          timeout: '3600'
+          changeCreationTimeOut: '3600'
+          abortOnChangeCreationFailure: false
+          abortOnChangeStepTimeout: false
+
+      - name: Change Request Details
+        if: always()
+        run: |
+          echo "Change Request Number: ${{ steps.create.outputs.change-request-number }}"
+          echo "Change Request SYS ID: ${{ steps.create.outputs.change-request-sys-id }}"
+
   deploy:
     name: Deploy
-    needs: build
+    needs: changeApproval
     runs-on: ubuntu-22.04
     steps:
       - name: Run Deployment Script
