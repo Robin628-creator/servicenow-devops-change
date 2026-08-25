@@ -7,6 +7,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -15,22 +16,31 @@ jobs:
     name: ServiceNow Change Approval
     needs: build
     runs-on: ubuntu-22.04
+
     steps:
       - name: ServiceNow Change Approval
         uses: ServiceNow/servicenow-devops-change@v2.0.0
         with:
+          job-name: changeApproval
           devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
           devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          change-request: '{"setCloseCode":"true","attributes":{"short_description":"GitHub Deployment","assignment_group":"a715cd759f200"}}'
-          interval: '100'
-          timeout: '3600'
+          change-request: >
+            {
+              "setCloseCode":"true",
+              "attributes":{
+                "short_description":"GitHub Deployment"
+              }
+            }
+          interval: "100"
+          timeout: "3600"
 
   deploy:
     name: Deploy
     needs: changeApproval
     runs-on: ubuntu-22.04
+
     steps:
       - name: Run Deployment Script
         run: echo "Deployment Finished....."
