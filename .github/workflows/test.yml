@@ -23,35 +23,9 @@ jobs:
       - name: Compile
         run: npm run build
 
-  changeApproval:
-    name: ServiceNow Change Approval
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: ServiceNow Change Approval
-        uses: ServiceNow/servicenow-devops-change@v6.1.0
-        id: create
-        with:
-          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
-          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'ServiceNow Change Approval'
-          change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group":"a715cd759f200"}}'
-          interval: '100'
-          timeout: '3600'
-          changeCreationTimeOut: '3600'
-          abortOnChangeCreationFailure: true
-          abortOnChangeStepTimeout: true
-
-      - name: Output of Change Creation
-        if: always()
-        run: echo "change-request-number = ${{ steps.create.outputs.change-request-number }} and change-request-sys-id = ${{ steps.create.outputs.change-request-sys-id }}"
-
   deploy:
     name: Deploy
-    needs: changeApproval
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Run Deployment Script
